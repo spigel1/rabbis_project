@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rabbis List</title>
+</head>
+<body>
+    <h1>List of Rabbis</h1>
+    <ul>
+        {% for rabbi in rabbis %}
+            <li><a href="{% url 'rabbi_detail' rabbi.id %}">{{ rabbi.name }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

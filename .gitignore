@@ -1,0 +1,14 @@
+# Ignore virtual environment
+venv/
+*.pyc
+__pycache__/
+
+# Ignore Django migration files
+rabbis/migrations/
+
+# Ignore system files
+.DS_Store
+*.log
+
+# Ignore Python package distribution files
+*.egg-info/

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ rabbi.name }}'s Details</title>
+</head>
+<body>
+    <h1>{{ rabbi.name }}</h1>
+    <p>Year of Birth: {{ rabbi.birth_year }}</p>
+    <p>Notable Offspring: {{ rabbi.notable_offspring }}</p>
+    <p>Wife: {{ rabbi.wife }}</p>
+    <p>Father: {% if rabbi.father %}{{ rabbi.father.name }}{% else %}N/A{% endif %}</p>
+    <p>Lifespan: {{ rabbi.lifespan }} years</p>
+    <p>Year of Death: {% if rabbi.death_year %}{{ rabbi.death_year }}{% else %}N/A{% endif %}</p>
+
+    <a href="{% url 'rabbi_list' %}">Back to List</a>
+</body>
+</html>
