@@ -6,27 +6,51 @@ class Command(BaseCommand):
     help = 'Import rabbis data from Excel'
 
     def handle(self, *args, **kwargs):
-        # Load the Excel file
         file_path = r'C:\Users\USER\OneDrive\שולחן העבודה\שימוש תלמידי חכמים\האדם עד 12 השבטים לצורך נסיונות.xlsx'
         df = pd.read_excel(file_path)
 
+        print(df.head())  # Print the first few rows of the DataFrame for debugging
+
         for index, row in df.iterrows():
-            # Assuming column names in Excel are 'name', 'birth_year', 'notable_offspring', 'wife', 'father', and 'lifespan'
+            print(f"Processing row {index}: {row['name']}")
+
+            # Look up father and wife
+            father = Person.objects.filter(name=row['father']).first() if pd.notna(row['father']) else None
+            wife = Person.objects.filter(name=row['wife']).first() if pd.notna(row['wife']) else None
             
-            # Handle father relationship
-            father = None
-            if pd.notna(row['father']):  # Check if the father field has a value
-                father = Person.objects.filter(name=row['father']).first()  # Match by name or adjust as needed
+            print(f"Father: {father}, Wife: {wife}")
 
-            # Create a Person instance
-            person = Person(
-                name=row['name'],
-                birth_year=row['birth_year'] if pd.notna(row['birth_year']) else None,
-                notable_offspring=row['notable_offspring'] if pd.notna(row['notable_offspring']) else '',
-                wife=row['wife'] if pd.notna(row['wife']) else '',
-                father=father,
-                lifespan=row['lifespan'] if pd.notna(row['lifespan']) else None
-            )
-            person.save()
+            # Create or update the Person
+            try:
+                person, created = Person.objects.get_or_create(
+                    name=row['name'],
+                    defaults={
+                        'birth_year': row.get('birth_year'),
+                        'lifespan': row.get('lifespan'),
+                        'wife': wife,
+                        'father': father
+                    }
+                )
 
-        self.stdout.write(self.style.SUCCESS('Successfully imported rabbis data'))
+                if not person:
+                    print(f"Failed to create or retrieve person for {row['name']}")
+                    continue  # Skip to the next iteration if person is None
+
+                print(f"Created: {created}, Person ID: {person.id}")
+
+                # Handle notable offspring relationships
+                if pd.notna(row['notable_offspring']):
+                    notable_offspring_names = row['notable_offspring'].split(",")  # Assuming they are comma-separated
+                    for child_name in notable_offspring_names:
+                        child_name = child_name.strip()
+                        child = Person.objects.filter(name=child_name).first()
+                        if child:
+                            person.notable_offspring.add(child)
+                        else:
+                            print(f"Child not found: {child_name}")
+
+                person.save()
+            except Exception as e:
+                print(f"Error while processing {row['name']}: {e}")
+
+        self.stdout.write(self.style.SUCCESS('Successfully imported people data.'))

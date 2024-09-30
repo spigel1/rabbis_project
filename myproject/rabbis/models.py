@@ -1,12 +1,18 @@
 from django.db import models
+import uuid
 
 class Person(models.Model):
+    # Automatically generate a unique identifier for each person
+    unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
     name = models.CharField(max_length=255)
     birth_year = models.IntegerField(blank=True, null=True)
-    notable_offspring = models.TextField(blank=True, null=True)
-    wife = models.CharField(max_length=255, blank=True, null=True)
-    father = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
     lifespan = models.IntegerField(blank=True, null=True)
+    
+    # Use ForeignKey to relate people more reliably
+    wife = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='husbands')
+    father = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
+    notable_offspring = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='perants')
 
     @property
     def death_year(self):
@@ -14,9 +20,3 @@ class Person(models.Model):
 
     def __str__(self):
         return self.name
-class SpousalRelationship(models.Model):
-    husband = models.ForeignKey(Person, related_name='husbands', on_delete=models.CASCADE)
-    wife = models.ForeignKey(Person, related_name='wives', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.husband} - {self.wife}"
