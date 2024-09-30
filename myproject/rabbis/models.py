@@ -5,17 +5,21 @@ class Person(models.Model):
     # Automatically generate a unique identifier for each person
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
+    # Basic person information
     name = models.CharField(max_length=255)
     birth_year = models.IntegerField(blank=True, null=True)
     lifespan = models.IntegerField(blank=True, null=True)
-    
-    # Use ForeignKey to relate people more reliably
-    wife = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='husbands')
+
+    # Relationships: many-to-many for wives and notable offspring
+    wife = models.ManyToManyField('self', blank=True, related_name='husbands')
+    notable_offspring = models.ManyToManyField('self', blank=True, related_name='parents')
+
+    # ForeignKey for father since one person has only one father
     father = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')
-    notable_offspring = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='perants')
 
     @property
     def death_year(self):
+        # Calculate death year based on birth year and lifespan if available
         return self.birth_year + self.lifespan if self.birth_year and self.lifespan else None
 
     def __str__(self):

@@ -7,7 +7,7 @@
     <h1>Create New Person</h1>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}  <!-- Render form fields -->
+        {{ form.as_p }}  <!-- Render form fields including multiple select for wife and notable_offspring -->
         <button type="submit">Save</button>
     </form>
     <a href="{% url 'person_list' %}">Back to List</a>

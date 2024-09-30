@@ -2,16 +2,8 @@ from django.contrib import admin
 from .models import Person
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('name', 'birth_year', 'lifespan', 'unique_id', 'notable_offspring')
+    list_display = ('name', 'birth_year', 'lifespan', 'unique_id')  # Notable offspring handled separately
     search_fields = ['name']
-    
-    # # Adding filters to help link people directly
-    # filter_horizontal = ('notable_offspring',)  # For ManyToMany relationships
-
-    # fieldsets = (
-    #     (None, {
-    #         'fields': ('name', 'birth_year', 'lifespan', 'wife', 'father', 'notable_offspring')
-    #     }),
-    # )
+    filter_horizontal = ('wife', 'notable_offspring')  # Enables better multi-select in admin
 
 admin.site.register(Person, PersonAdmin)
