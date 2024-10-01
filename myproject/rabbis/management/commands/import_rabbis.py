@@ -3,63 +3,71 @@ from django.core.management.base import BaseCommand
 from rabbis.models import Person
 
 class Command(BaseCommand):
-    help = 'Import people data from Excel'
+    help = 'Import rabbi data from an Excel file'
+
+    def add_arguments(self, parser):
+        parser.add_argument('file_path', type=str, help='Path to the Excel file')
 
     def handle(self, *args, **kwargs):
-        file_path = r'C:\Users\USER\OneDrive\שולחן העבודה\שימוש תלמידי חכמים\האדם עד 12 השבטים לצורך נסיונות.xlsx'
-        df = pd.read_excel(file_path)
+        file_path = kwargs['file_path']
+        data = pd.read_excel(file_path)
 
-        print(df.head())  # Print the first few rows for debugging
+        # Create a mapping of names to Person instances for easy linking later
+        person_mapping = {}
 
-        for index, row in df.iterrows():
-            print(f"Processing row {index}: {row['name']}")
+        # Step 1: Create Person entities from the Excel data
+        for index, row in data.iterrows():
+            name = row['name']
+            birth_year = row['birth_year'] if pd.notna(row['birth_year']) else None
+            lifespan = row['lifespan'] if pd.notna(row['lifespan']) else None
+            notable_offspring = row['notable_offspring']
+            wife = row['wife']
+            father = row['father']
 
-            # Look up father
-            father = Person.objects.filter(name=row['father']).first() if pd.notna(row['father']) else None
+            # Create a new Person instance
+            person, created = Person.objects.get_or_create(
+                name=name,
+                defaults={
+                    'birth_year': birth_year,
+                    'lifespan': lifespan,
+                }
+            )
+            person_mapping[name] = person  # Store the instance in the mapping
+
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Created entity: {person}'))
+
+        # Step 2: Establish relationships based on the mappings
+        for index, row in data.iterrows():
+            name = row['name']
+            notable_offspring_names = row['notable_offspring'].split(',') if isinstance(row['notable_offspring'], str) else []
+            wife_names = row['wife'].split(',') if isinstance(row['wife'], str) else []
+            father_name = row['father'] if isinstance(row['father'], str) else None
             
-            # Create or update the Person
-            try:
-                # Create or retrieve the person
-                person, created = Person.objects.get_or_create(
-                    name=row['name'],
-                    defaults={
-                        'birth_year': row.get('birth_year'),
-                        'lifespan': row.get('lifespan'),
-                        'father': father
-                    }
-                )
+            person = person_mapping.get(name)
 
-                if not person:
-                    print(f"Failed to create or retrieve person for {row['name']}")
-                    continue  # Skip this row if person is not created
-                
-                print(f"Created: {created}, Person ID: {person.id}")
+            # Link wives
+            for wife_name in wife_names:
+                wife_name = wife_name.strip()
+                wife_person = person_mapping.get(wife_name)
+                if wife_person:
+                    person.wife.add(wife_person)
+                    self.stdout.write(self.style.SUCCESS(f'Linked {person} with wife {wife_person}'))
 
-                # Handle multiple wives (assuming comma-separated in Excel)
-                if pd.notna(row['wife']):
-                    wife_names = row['wife'].split(",")  # Split the wife names by comma
-                    for wife_name in wife_names:
-                        wife_name = wife_name.strip()
-                        wife = Person.objects.filter(name=wife_name).first()
-                        if wife:
-                            person.wife.add(wife)  # Add wife to the ManyToManyField
-                        else:
-                            print(f"Wife not found: {wife_name}")
+            # Link notable offspring
+            for offspring_name in notable_offspring_names:
+                offspring_name = offspring_name.strip()
+                offspring_person = person_mapping.get(offspring_name)
+                if offspring_person:
+                    person.notable_offspring.add(offspring_person)
+                    self.stdout.write(self.style.SUCCESS(f'Linked {person} with notable offspring {offspring_person}'))
 
-                # Handle notable offspring relationships (assuming comma-separated in Excel)
-                if pd.notna(row['notable_offspring']):
-                    notable_offspring_names = row['notable_offspring'].split(",")  # Split by comma
-                    for child_name in notable_offspring_names:
-                        child_name = child_name.strip()
-                        child = Person.objects.filter(name=child_name).first()
-                        if child:
-                            person.notable_offspring.add(child)  # Add offspring to ManyToManyField
-                        else:
-                            print(f"Notable offspring not found: {child_name}")
+            # Link father
+            if father_name:
+                father_person = person_mapping.get(father_name)
+                if father_person:
+                    person.father = father_person
+                    person.save()
+                    self.stdout.write(self.style.SUCCESS(f'Linked {person} with father {father_person}'))
 
-                # Save the person
-                person.save()
-            except Exception as e:
-                print(f"Error while processing {row['name']}: {e}")
-
-        self.stdout.write(self.style.SUCCESS('Successfully imported people data.'))
+        self.stdout.write(self.style.SUCCESS('Successfully imported people data and established relationships.'))

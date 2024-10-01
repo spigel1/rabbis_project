@@ -10,9 +10,9 @@ class Person(models.Model):
     birth_year = models.IntegerField(blank=True, null=True)
     lifespan = models.IntegerField(blank=True, null=True)
 
-    # Relationships: many-to-many for wives and notable offspring
-    wife = models.ManyToManyField('self', blank=True, related_name='husbands')
-    notable_offspring = models.ManyToManyField('self', blank=True, related_name='parents')
+    # Relationships: many-to-many for wives and notable offspring, setting symmetrical=False
+    wife = models.ManyToManyField('self', blank=True, related_name='husbands', symmetrical=False)
+    notable_offspring = models.ManyToManyField('self', blank=True, related_name='parents', symmetrical=False)
 
     # ForeignKey for father since one person has only one father
     father = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='children')

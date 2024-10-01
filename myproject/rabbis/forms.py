@@ -17,3 +17,6 @@ class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = ['name', 'birth_year', 'lifespan', 'wife', 'father', 'notable_offspring']  # Include all relevant fields
+
+class ExcelUploadForm(forms.Form):
+    file = forms.FileField(label='Select an Excel file')

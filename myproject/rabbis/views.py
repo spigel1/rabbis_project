@@ -1,6 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Person
 from .forms import PersonForm
+from django.contrib import messages
+from .forms import ExcelUploadForm
+from rabbis.utils import import_from_excel
 
 # View to display all rabbis
 def rabbi_list(request):
@@ -12,25 +15,19 @@ def rabbi_detail(request, rabbi_id):
     rabbi = Person.objects.get(id=rabbi_id)
     return render(request, 'rabbis/rabbi_detail.html', {'rabbi': rabbi})
 
-# View to handle creation
-def create_person(request):
+def upload_excel(request):
     if request.method == 'POST':
-        form = PersonForm(request.POST)
+        form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('person_list')  # Redirect after successful creation
+            excel_file = request.FILES['file']
+            try:
+                # Process the uploaded Excel file using the import_from_excel function
+                result_message = import_from_excel(excel_file)
+                messages.success(request, result_message)
+            except Exception as e:
+                messages.error(request, f'Error importing file: {e}')
+            return redirect('upload_excel')
     else:
-        form = PersonForm()
-    return render(request, 'rabbis/create_person.html', {'form': form})
-
-# View to handle editing
-def edit_person(request, pk):
-    person = get_object_or_404(Person, pk=pk)
-    if request.method == 'POST':
-        form = PersonForm(request.POST, instance=person)
-        if form.is_valid():
-            form.save()
-            return redirect('person_detail', pk=person.pk)
-    else:
-        form = PersonForm(instance=person)
-    return render(request, 'rabbis/edit_person.html', {'form': form})
+        form = ExcelUploadForm()
+    
+    return render(request, 'rabbis/upload_excel.html', {'form': form})
