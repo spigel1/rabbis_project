@@ -4,6 +4,8 @@ from .forms import PersonForm
 from django.contrib import messages
 from .forms import ExcelUploadForm
 from rabbis.utils import import_from_excel
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 # View to display all rabbis
 def rabbi_list(request):

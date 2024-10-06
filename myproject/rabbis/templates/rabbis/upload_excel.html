@@ -1,13 +1,33 @@
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
-</form>
+{% extends 'rabbis/base.html' %}
 
-{% if messages %}
-    <ul>
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+{% load static %}
+{% load widget_tweaks %}  <!-- Load widget_tweaks -->
+
+{% block title %}
+    Upload Excel File
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2 class="mb-4">Upload Excel File to Import People</h2>
+        <form method="post" enctype="multipart/form-data" class="mb-4">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.file.label_tag }}
+                {{ form.file|add_class:"form-control" }}
+            </div>
+            <button type="submit" class="btn btn-success w-100">Upload</button>
+        </form>
+        
+        {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

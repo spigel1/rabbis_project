@@ -1,14 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Rabbis List</title>
-</head>
-<body>
-    <h1>List of Rabbis</h1>
-    <ul>
-        {% for rabbi in rabbis %}
-            <li><a href="{% url 'rabbi_detail' rabbi.id %}">{{ rabbi.name }}</a></li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends 'rabbis/base.html' %}
+
+{% block title %}
+    Rabbis List
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="mb-4">List of Rabbis</h1>
+
+        <!-- Search bar -->
+        <input type="text" id="search" class="form-control mb-3" placeholder="Search for a rabbi..." />
+
+        <div class="list-group" id="rabbi-list">
+            {% for rabbi in rabbis %}
+                <a href="{% url 'rabbi_detail' rabbi.id %}" class="list-group-item list-group-item-action">
+                    {{ rabbi.name }}
+                </a>
+            {% empty %}
+                <p>No rabbis found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to filter the list
+        document.getElementById('search').addEventListener('input', function() {
+            let filter = this.value.toLowerCase();
+            let listItems = document.querySelectorAll('#rabbi-list .list-group-item');
+
+            listItems.forEach(function(item) {
+                let text = item.textContent.toLowerCase();
+                item.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+{% endblock %}

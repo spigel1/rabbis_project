@@ -1,0 +1,59 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    padding-bottom: 60px; /* To prevent content from overlapping with footer */
+    direction: rtl; /* Set the overall body to RTL */
+    text-align: right; /* Align text to the right */
+}
+
+header {
+    background-color: #343a40;
+    color: white;
+    padding: 1rem 0;
+    text-align: right; /* Ensure header text is aligned to the right */
+}
+
+header h1 {
+    margin-bottom: 0.5rem;
+    text-align: right; /* Align header text to the right */
+}
+
+nav ul {
+    list-style: none;
+    padding-left: 0;
+    text-align: right; /* Align the navigation menu to the right */
+}
+
+nav ul li {
+    display: inline;
+    margin-left: 1rem; /* Change margin to left for RTL */
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+footer {
+    background-color: #343a40;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center; /* Keep footer text centered */
+}
+
+.card {
+    margin-bottom: 1.5rem;
+    text-align: right; /* Ensure card content is right-aligned */
+}
+
+.alert {
+    margin-top: 1rem;
+    text-align: right; /* Alerts should also be right-aligned */
+}
