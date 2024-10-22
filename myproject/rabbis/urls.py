@@ -6,4 +6,5 @@ urlpatterns = [
     path('', views.rabbi_list, name='rabbi_list'),
     path('<int:rabbi_id>/', views.rabbi_detail, name='rabbi_detail'),
     path('upload/', upload_excel, name='upload_excel'),
+    path('connections-data/<int:rabbi_id>/', views.connections_data, name='connections_data'),
 ]

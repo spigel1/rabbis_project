@@ -57,3 +57,63 @@ footer {
     margin-top: 1rem;
     text-align: right; /* Alerts should also be right-aligned */
 }
+
+.graph-container {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    border: 2px solid #212529;
+    margin-bottom: 20px;
+    position: relative;
+    height: 500px; /* Fixed height */
+    overflow: hidden; /* Prevents overflow issues */
+}
+
+#timeline {
+    width: 100px;
+    height: 100%; /* Matches the height of the container */
+    background-color: #e0e0e0;
+    border-right: 1px solid #ccc;
+    position: relative;
+}
+
+#graph {
+    flex-grow: 1;
+    height: 100%; /* Matches the height of the container */
+    background-color: #f0f0f0;
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+}
+
+.nodes circle {
+    stroke: #fff;
+    stroke-width: 0.5px;
+}
+
+.links line {
+    stroke: #999;
+    stroke-opacity: 0.6;
+}
+
+.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 150px;
+    height: auto;
+    padding: 5px;
+    font: 12px sans-serif;
+    background: lightgrey;
+    border: 1px solid #333;
+    border-radius: 5px;
+    pointer-events: none; 
+}
+
+.tick line {
+    stroke: #5c5ae6;
+}
+
+.tick text {
+    font-size: 20px;
+    font-family: Arial, sans-serif;
+}

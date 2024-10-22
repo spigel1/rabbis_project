@@ -1,56 +1,81 @@
-
 {% extends 'rabbis/base.html' %}
 
+{% load static %}
+
 {% block title %}
-    {{ rabbi.name }}'s Details
+  {{ rabbi.name }}'s Details
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="card mb-4">
-            <div class="card-body">
-                <h2 class="card-title">{{ rabbi.name }}</h2>
-                <p class="card-text"><strong>Year of Birth:</strong> {{ rabbi.birth_year }}</p>
-                
-                <p class="card-text"><strong>Notable Offspring:</strong> 
-                    {% if rabbi.notable_offspring.all %}
-                        {% for offspring in rabbi.notable_offspring.all %}
-                            {{ offspring.name }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </p>
-                
-                <p class="card-text"><strong>Wife:</strong> 
-                    {% if rabbi.wife.all %}
-                        {% for wife in rabbi.wife.all %}
-                            {{ wife.name }}{% if not forloop.last %}, {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </p>
-                
-                <p class="card-text"><strong>Father:</strong> 
-                    {% if rabbi.father %}
-                        {{ rabbi.father.name }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </p>
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="card-title">{{ rabbi.name }}</h2>
 
-                <p class="card-text"><strong>Lifespan:</strong> {{ rabbi.lifespan }} years</p>
-                <p class="card-text"><strong>Year of Death:</strong> 
-                    {% if rabbi.death_year %}
-                        {{ rabbi.death_year }}
-                    {% else %}
-                        N/A
-                    {% endif %}
-                </p>
+          <p class="card-text"><strong>Year of Birth:</strong> {{ rabbi.birth_year }}</p>
 
-                <a href="{% url 'rabbi_list' %}" class="btn btn-primary">Back to List</a>
-            </div>
+          <p class="card-text"><strong>Notable Offspring:</strong>
+            {% if rabbi.notable_offspring.all %}
+              {% for offspring in rabbi.notable_offspring.all %}
+                {{ offspring.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            {% else %}
+              N/A
+            {% endif %}
+          </p>
+
+          <p class="card-text"><strong>Wife:</strong>
+            {% if rabbi.wife.all %}
+              {% for wife in rabbi.wife.all %}
+                {{ wife.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            {% else %}
+              N/A
+            {% endif %}
+          </p>
+
+          <p class="card-text"><strong>Father:</strong>
+            {% if rabbi.father %}
+              {{ rabbi.father.name }}
+            {% else %}
+              N/A
+            {% endif %}
+          </p>
+
+          <p class="card-text"><strong>Lifespan:</strong> {{ rabbi.lifespan }} years</p>
+
+          <p class="card-text"><strong>Year of Death:</strong>
+            {% if rabbi.death_year %}
+              {{ rabbi.death_year }}
+            {% else %}
+              N/A
+            {% endif %}
+          </p>
         </div>
+        <a href="{% url 'rabbi_list' %}" class="btn btn-primary">Back to List</a>
+      </div>
     </div>
+    <div class="col-md-9">
+      <div class="graph-container">
+        <div id="timeline"></div>
+        <div id="graph"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var rabbiId = "{{ rabbi.id }}";
+  var connectionsDataUrl = "{% url 'connections_data' rabbi_id=rabbi.id %}";
+</script>
+
+<!-- <script src="{% static 'rabbis/js/connection_graph/timeline.js' %}"></script> -->
+<script src="{% static 'rabbis/js/connection_graph/graph.js' %}"></script>
+<!-- <script src="{% static 'rabbis/js/connection_graph/tooltip.js' %}"></script> -->
+<!-- <script src="{% static 'rabbis/js/connection_graph/zoom.js' %}"></script> -->
+<!-- <script src="{% static 'rabbis/js/connection_graph/dataLoader.js' %}"></script> -->
+<!-- <script src="{% static 'rabbis/js/connection_graph/main.js' %}"></script> -->
+
 {% endblock %}
