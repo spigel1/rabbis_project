@@ -89,20 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // The transformation (event.transform) is applied to the container, moving all the graph contents accordingly.
     // The Y-axis is rescaled dynamically to match the zoom level.
 
-
-    // 6. Tooltip Setup
-    var tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("position", "absolute")
-        .style("visibility", "hidden")
-        .style("background", "lightgrey")
-        .style("padding", "5px")
-        .style("border-radius", "5px");
-
-    // A simple tooltip element is added to the body, styled to appear when hovering over graph nodes.
-    // By default, the tooltip is hidden until needed (visibility: hidden).
-
-
+    
     // 7. Fetching and Handling Data
     fetch(connectionsDataUrl)
         .then(response => response.json())
@@ -161,19 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
     node.append("circle")
         .attr("r", 3)
         .attr("fill", d => d.type === "rabbi" ? "blue" : d.type === "father" ? "green" : d.type === "wife" ? "red" : "orange")
-        .on("mouseover", function (event, d) {
-            tooltip.html(`Name: ${d.name}<br>Year of Birth: ${d.birth_year}`)
-                .style("visibility", "visible")
-                .style("top", (event.pageY + 5) + "px")
-                .style("left", (event.pageX + 5) + "px");
-        })
-        .on("mousemove", function (event) {
-            tooltip.style("top", (event.pageY + 5) + "px")
-                .style("left", (event.pageX + 5) + "px");
-        })
-        .on("mouseout", function () {
-            tooltip.style("visibility", "hidden");
-        })
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
@@ -181,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Circles are added for each node.
     // The fill color depends on the type of node (e.g., "rabbi," "father").
-    // On hovering over a node, a tooltip shows the name and year of birth.
     // Nodes are draggable with D3's drag behaviors.
 
 
