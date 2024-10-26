@@ -64,9 +64,19 @@ document.addEventListener("DOMContentLoaded", function () {
     // The graph area (another SVG) is set with dimensions of 900px width and 500px height.
     // A zoom behavior is created, allowing scaling between 0.5 and 10x and calling the zoomed function to apply transformations.
     // A g container group is added inside the graph SVG, which will hold the graph elements (nodes, links).
+    
+    // 5. Setting Up Force Simulation
+    
+    const simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(d => d.id).distance(60).strength(1))
+        .force("charge", d3.forceManyBody().strength(-60))
+        .force("center", d3.forceCenter(graphWidth / 2, graphHeight / 2));
+    // Define the force simulation at a higher (global) level
 
+    // A force simulation is created to simulate the movement and interaction of nodes and links.
+    // Nodes repel each other using d3.forceManyBody, and links connect them using d3.forceLink.
 
-    // 5. Zoom Function
+    // 6. Zoom Function
     function zoomed(event) {
         var transform = event.transform;
         container.attr("transform", transform); // Apply zoom and pan transformations
@@ -83,7 +93,46 @@ document.addEventListener("DOMContentLoaded", function () {
         // Ensure uniform tick size after zoom or pan
         svgTimeline.selectAll(".tick line").attr("x2", -graphWidth);
         svgTimeline.selectAll(".tick text").attr("x", -2).style("text-anchor", "start");
+
+        // Inverse scaling: zoom in (larger transform.k) makes the circles smaller
+        const inverseScaleFactor = 1 / transform.k; // Inverse zoom scale for circles and text
+
+        // Scale node circles (make smaller when zooming in, bigger when zooming out)
+        container.selectAll("circle")
+            .attr("r", 5 * inverseScaleFactor) // Adjust the radius as needed
+            .style("stroke-width", `${0.5 * inverseScaleFactor}px`); // Scale stroke-width inversely
+
+
+        // Scale node text size only, without adjusting `dy`
+        container.selectAll("text")
+            .style("font-size", `${10 * inverseScaleFactor}px`)  // Scale text size inversely
+
+        // Adjust the link thickness and opacity
+        container.selectAll("line")
+            .style("stroke-width", `${2 * inverseScaleFactor}px`) // Scale link thickness inversely
+            .attr("stroke-dasharray", d => {
+                // Keep same dashed pattern regardless of zoom
+                return d.relation === "spouse" ? `${5 * inverseScaleFactor},${5 * inverseScaleFactor}` : "none";
+            });
+            // .style("stroke-opacity", Math.min(1, 0.6 * inverseScaleFactor)); // Adjust opacity
+
+        // Scale node text size and position
+        container.selectAll("text")
+            .style("font-size", `${15 * inverseScaleFactor}px`) // Scale text size inversely
+            .attr("dy", -10 * inverseScaleFactor); // Adjust the vertical offset inversely
+            // console.log(20 ** inverseScaleFactor, "חידוש", "       ", 15 * inverseScaleFactor, "ישן");
+
+
+        // Dynamically adjust the link distance based on zoom level
+        const linkDistance = 60 * inverseScaleFactor; // Adjust link distance relative to zoom
+
+        // Update force simulation with the new link distance
+        simulation.force("link").distance(linkDistance); // Dynamically adjust link distance
+        simulation.alpha(1).restart(); 
+
+
     }
+
 
     // The zoomed function is called during zoom/pan events.
     // The transformation (event.transform) is applied to the container, moving all the graph contents accordingly.
@@ -118,18 +167,29 @@ document.addEventListener("DOMContentLoaded", function () {
     // All nodes are horizontally centered at the midpoint of the graph (graphWidth / 2).
 
 
-    // 10. Creating Links
+    // 10 Creating Links with Different Styles Based on Relationship
     const link = container.append("g")
         .attr("class", "links")
         .selectAll("line")
         .data(links)
-        .enter().append("line")
-        .attr("stroke-width", 2)
-        .attr("stroke", "#999");
+        .enter()
+        .append("line")
+        .attr("stroke-width", d => {
+            // Thicker lines for parent-child, thinner for spouse
+            return d.relation === "parent" ? 3 : d.relation === "spouse" ? 2 : 1;
+        })
+        .attr("stroke", d => {
+            // Different colors for different relationships
+            return d.relation === "parent" ? "green" : d.relation === "spouse" ? "blue" : "#999";
+        })
+        .attr("stroke-dasharray", d => {
+            // Solid line for parent-child, dashed line for spouses
+            return d.relation === "spouse" ? "5,5" : "none"; 
+        });
+
 
     // Links between nodes are drawn using line elements.
     // Each link connects two nodes, and all links are styled similarly.
-
 
     // 11. Creating Nodes
     const node = container.append("g")
@@ -143,70 +203,62 @@ document.addEventListener("DOMContentLoaded", function () {
     // Each node is represented as a g element, which holds both the circle and text label.
     // The position of each node is set according to its initial x and y values.
 
-
-    // 12. Rendering Node Circles
+    // 12. Rendering Node Circles (Larger for Text)
+    // Rendering Node Circles (as smaller dots)
     node.append("circle")
-        .attr("r", 3)
+        .attr("r", 5)  // Small radius to make it look like a dot
         .attr("fill", d => d.type === "rabbi" ? "blue" : d.type === "father" ? "green" : d.type === "wife" ? "red" : "orange")
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended));
 
-    // Circles are added for each node.
-    // The fill color depends on the type of node (e.g., "rabbi," "father").
-    // Nodes are draggable with D3's drag behaviors.
+        // Circles are added for each node.
+        // The fill color depends on the type of node (e.g., "rabbi," "father").
+        // Nodes are draggable with D3's drag behaviors.
 
-
-    // 13. Rendering Node Labels
+    // 13. Rendering Node Labels Inside the Circle
+    // Text label positioned above the circle
     node.append("text")
-        .attr("dy", -6)
-        .attr("text-anchor", "middle")
-        .text(d => d.name);
+        .attr("dy", -10)  // Position above the circle
+        .attr("text-anchor", "middle")  // Center-align the text
+        .text(d => d.name.length > 8 ? d.name.slice(0, 6) + '...' : d.name)
+        .attr("fill", "#000")  // Dark text color for visibility
+        .style("font-size", "15px");
 
     // Each node has a label (text) showing the name of the individual.
     // The text is positioned above the node circle (dy: -10).
 
-
-    // 14. Setting Up Force Simulation
-    const simulation = d3.forceSimulation()
-        .force("link", d3.forceLink().id(d => d.id).distance(30).strength(1))
-        .force("charge", d3.forceManyBody().strength(-30))
-        .force("center", d3.forceCenter(graphWidth / 2, graphHeight / 2));
-    
-    // A force simulation is created to simulate the movement and interaction of nodes and links.
-    // Nodes repel each other using d3.forceManyBody, and links connect them using d3.forceLink.
-
-
-    // 15. Ticking the Simulation
+   // 14. Ticking the Simulation
     simulation
-    .nodes(nodes)
-    .on("tick", ticked);
+        .nodes(nodes)
+        .on("tick", ticked);
 
     simulation.force("link")
-    .links(links);
+        .links(links);
 
     function ticked() {
-        // Maintain y position according to the year of birth
+        // Update both the circle and the text position together in each `g` element (node group)
         node.attr("transform", d => {
-            // Maintain node's y position based on birth year
+            // Keep `y` position based on birth year or any updated `y` value
             d.y = yScale(d.birth_year); // Set y position based on birth year
             return `translate(${d.x}, ${d.y})`;
         });
-
-        link.attr("x1", d => d.source.x)
+    
+        // Update link positions dynamically
+        link
+            .attr("x1", d => d.source.x)
             .attr("y1", d => d.source.y)
             .attr("x2", d => d.target.x)
             .attr("y2", d => d.target.y);
     }
-
     
-
+    
     // The `ticked` function updates node and link positions as the simulation runs.
     // Nodes maintain their `x` and `y` positions, while links are drawn between the source and target nodes.
 
 
-    // 16. Drag Handlers
+    // 15. Drag Handlers
     function dragstarted(event, d) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
         d.fx = d.x;
