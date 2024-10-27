@@ -103,3 +103,67 @@ footer {
     font-size: 20px;
     font-family: Arial, sans-serif;
 }
+
+.graph-controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between buttons */
+    z-index: 10; /* Ensure buttons are above other elements */
+}
+
+.graph-controls button {
+    width: 40px; /* Fixed width for uniformity */
+    height: 40px; /* Fixed height for uniformity */
+    background-color: #fff; /* White background for contrast */
+    color: #333; /* Dark text color */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 5px; /* Slightly rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    display: flex; /* Flexbox for centering */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: background-color 0.2s, border-color 0.2s; /* Smooth transition */
+}
+
+.graph-controls button:hover {
+    background-color: #f0f0f0; /* Light grey on hover */
+    border-color: #aaa; /* Darker border on hover */
+}
+
+.graph-controls i {
+    font-size: 20px; /* Adjust the icon size */
+}
+
+/* Tooltip container styles */
+.btn {
+    position: relative;
+}
+
+.btn[data-tooltip]::after {
+    content: attr(data-tooltip); /* Use the data-tooltip attribute */
+    position: absolute;
+    top: 40%; /* Center vertically */
+    left: 200%; /* Position to the right of the button */
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* Prevents tooltip from blocking button clicks */
+}
+
+.btn[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0.5s; /* Delay before showing the tooltip */
+}
+

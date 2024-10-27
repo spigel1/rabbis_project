@@ -59,8 +59,13 @@
     </div>
     <div class="col-md-9">
       <div class="graph-container">
-        <!-- <button id="focus-button" class="btn btn-secondary">Focus on Rabbi</button>
-        <button id="fullscreen-button" class="btn btn-secondary">Fullscreen</button> -->
+        <div class="graph-controls">
+          <button id="zoom-in-button" class="btn" data-tooltip="Zoom In"><i class="fas fa-plus"></i></button>
+          <button id="zoom-out-button" class="btn" data-tooltip="Zoom Out"><i class="fas fa-minus"></i></button>
+          <button id="reset-focus-button" class="btn" data-tooltip="Reset Focus"><i class="fas fa-expand"></i></button>
+          <button id="focus-entity-button" class="btn" data-tooltip="Focus on Entity"><i class="fas fa-crosshairs"></i></button>
+          <button id="settings-button" class="btn" data-tooltip="Settings"><i class="fas fa-cog"></i></button>          
+        </div>
         <div id="timeline"></div>
         <div id="graph"></div>
       </div>

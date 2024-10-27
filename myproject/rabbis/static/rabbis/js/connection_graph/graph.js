@@ -153,11 +153,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // The Y-axis is rescaled dynamically to match the zoom level.
 
     // 7. Fetching and Handling Data
+    let nodes = [];
+    let links = [];
     fetch(connectionsDataUrl)
         .then(response => response.json())
         .then(data => {
-            const nodes = data.nodes;
-            const links = data.links;
+            nodes = data.nodes;
+            links = data.links;
+            console.log("Fetched nodes:", nodes); // Check nodes structure
+            console.log("Fetched links:", links);
 
     // Data for nodes and links is fetched from an external URL (connectionsDataUrl).
     // Once received, it's parsed as JSON and stored as nodes and links.
@@ -291,4 +295,67 @@ document.addEventListener("DOMContentLoaded", function () {
     // These handlers manage the dragging of nodes, temporarily fixing their positions (fx, fy) during the drag, and releasing them afterward
     })
     .catch(error => console.error('Error loading the connections data:', error));
+
+    // Buttons 
+    document.getElementById('zoom-in-button').addEventListener('click', function() {
+        zoom.scaleBy(svgGraph.transition().duration(450), 2.2); // Zoom in
+    });
+    
+    document.getElementById('zoom-out-button').addEventListener('click', function() {
+        zoom.scaleBy(svgGraph.transition().duration(450), 1.5); // Zoom out
+    });
+
+    // Reset focus button functionality - maintains the current "focus" behavior
+    document.getElementById("reset-focus-button").addEventListener("click", function() {
+        svgGraph.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+    });
+
+    // Focus on the specific entity button functionality
+    // Event listener for the focus button
+    document.getElementById("focus-entity-button").addEventListener("click", function() {
+        focusOnNode(rabbiId);
+    });    
+
+    document.getElementById('settings-button').addEventListener('click', () => {
+        alert('Settings menu is not implemented yet.'); // You can replace this with actual settings logic
+    });
+
+    function focusOnNode(nodeId) {
+        console.log("nodeId", [nodeId]);
+        const entityNode = nodes.find(node => node.id === Number(nodeId)); // Assuming IDs are numbers
+        console.log("entityNode", [entityNode]);
+    
+        if (!entityNode || entityNode.x == null || entityNode.y == null) {
+            console.log("Node not found or doesn't have coordinates.");
+            return;
+        }
+    
+        // Get SVG dimensions dynamically
+        const svgWidth = svgGraph.node().clientWidth;
+        const svgHeight = svgGraph.node().clientHeight;
+    
+        // Define a higher zoom scale factor for a closer view of the node
+        const zoomScale = 8; // Higher value for closer zoom
+    
+        // Calculate the translation based on the node's coordinates and zoom scale
+        const translateX = -entityNode.x * zoomScale + svgWidth / 2;
+        const translateY = -entityNode.y * zoomScale + svgHeight / 2;
+    
+        // Transition to focus on the node with zoom
+        svgGraph.transition()
+            .duration(750)
+            .call(
+                zoom.transform,
+                d3.zoomIdentity
+                    .translate(translateX, translateY)
+                    .scale(zoomScale)
+            )
+            .on("end", () => {
+                // Enable free panning and zooming after focusing on the node
+                svgGraph.call(zoom);
+            });
+    }
+    
+    
+    
 });
