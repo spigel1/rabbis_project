@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 4. Zoom and Pan Setup for Graph
     var graphWidth = 900;
     var graphHeight = 500;
+    var graphMargin = { top: 11, right: 0, bottom: 11, left: 0 };
 
     var zoom = d3.zoom()
         .scaleExtent([1, 14]) // Set zoom limits
@@ -57,9 +58,15 @@ document.addEventListener("DOMContentLoaded", function () {
         .append("svg")
         .attr("width", graphWidth)
         .attr("height", graphHeight)
-        .ticks(7)
-        .tickFormat(d3.format("d"))
+        .attr("transform", "translate(" + graphMargin.left + "," + graphMargin.top + ")")
         .call(zoom);
+
+    svgGraph.append("g")
+        .attr("class", "y-axis")
+        .call(yAxis)
+        .selectAll(".tick line")
+        .style("stroke", "lightgrey")
+        .attr("x2", graphWidth) // Extend ticks into the graph
 
     var container = svgGraph.append("g");
 
@@ -77,7 +84,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // A force simulation is created to simulate the movement and interaction of nodes and links.
     // Nodes repel each other using d3.forceManyBody, and links connect them using d3.forceLink.
-
+    
+    
     // 6. Zoom Function
     function zoomed(event) {
         var transform = event.transform;
@@ -90,6 +98,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 .ticks(7)
                 .tickFormat(d3.format("d"))
         );
+
+        svgGraph.select(".y-axis").call(
+            d3.axisRight(new_yScale)
+                .ticks(7)
+                .tickFormat(d3.format("d"))
+        );
+
+        svgGraph.selectAll(".tick line")
+            .style("stroke", "lightgrey")
+            .attr("x2", graphWidth) // Extend ticks into the graph
 
         svgTimeline.selectAll(".tick text").attr("x", 54).style("text-anchor", "start");
 
@@ -128,16 +146,12 @@ document.addEventListener("DOMContentLoaded", function () {
         // Update force simulation with the new link distance
         simulation.force("link").distance(linkDistance); // Dynamically adjust link distance
         simulation.alpha(1).restart(); 
-
-
     }
-
 
     // The zoomed function is called during zoom/pan events.
     // The transformation (event.transform) is applied to the container, moving all the graph contents accordingly.
     // The Y-axis is rescaled dynamically to match the zoom level.
 
-    
     // 7. Fetching and Handling Data
     fetch(connectionsDataUrl)
         .then(response => response.json())

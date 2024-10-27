@@ -59,6 +59,8 @@
     </div>
     <div class="col-md-9">
       <div class="graph-container">
+        <!-- <button id="focus-button" class="btn btn-secondary">Focus on Rabbi</button>
+        <button id="fullscreen-button" class="btn btn-secondary">Fullscreen</button> -->
         <div id="timeline"></div>
         <div id="graph"></div>
       </div>
@@ -71,11 +73,6 @@
   var connectionsDataUrl = "{% url 'connections_data' rabbi_id=rabbi.id %}";
 </script>
 
-<!-- <script src="{% static 'rabbis/js/connection_graph/timeline.js' %}"></script> -->
 <script src="{% static 'rabbis/js/connection_graph/graph.js' %}"></script>
-<!-- <script src="{% static 'rabbis/js/connection_graph/tooltip.js' %}"></script> -->
-<!-- <script src="{% static 'rabbis/js/connection_graph/zoom.js' %}"></script> -->
-<!-- <script src="{% static 'rabbis/js/connection_graph/dataLoader.js' %}"></script> -->
-<!-- <script src="{% static 'rabbis/js/connection_graph/main.js' %}"></script> -->
 
 {% endblock %}
