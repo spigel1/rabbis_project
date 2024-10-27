@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // 2. Timeline Configuration
-    var timelineMargin = { top: 12, right: 60, bottom: 12, left: 60 };
-    var timelineWidth = 100 - timelineMargin.left - timelineMargin.right;
+    var timelineMargin = { top: 11, right: 0, bottom: 11, left: 0 };
+    var timelineWidth = 70 - timelineMargin.left - timelineMargin.right;
     var timelineHeight = 500 - timelineMargin.top - timelineMargin.bottom;
 
     var yScale = d3.scaleLinear()
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 3. Rendering the Timeline SVG
     var svgTimeline = d3.select("#timeline")
         .append("svg")
-        .attr("width", timelineWidth + timelineMargin.left + timelineMargin.right)
+        .attr("width", timelineWidth)
         .attr("height", timelineHeight + timelineMargin.top + timelineMargin.bottom)
         .append("g")
         .attr("transform", "translate(" + timelineMargin.left + "," + timelineMargin.top + ")");
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .attr("class", "y-axis")
         .call(yAxis)
         .selectAll(".tick text")
-        .attr("x", -2) // Shift numbers away from the timeline line for better aesthetics
+        .attr("x", 54) // Shift numbers away from the timeline line for better aesthetics
         .style("text-anchor", "start");
 
     // An SVG element is created inside the #timeline container, adjusted for margin.
@@ -57,6 +57,8 @@ document.addEventListener("DOMContentLoaded", function () {
         .append("svg")
         .attr("width", graphWidth)
         .attr("height", graphHeight)
+        .ticks(7)
+        .tickFormat(d3.format("d"))
         .call(zoom);
 
     var container = svgGraph.append("g");
@@ -87,12 +89,9 @@ document.addEventListener("DOMContentLoaded", function () {
             d3.axisRight(new_yScale)
                 .ticks(7)
                 .tickFormat(d3.format("d"))
-                .tickSize(-graphWidth) // Extend tick marks across the graph
         );
 
-        // Ensure uniform tick size after zoom or pan
-        svgTimeline.selectAll(".tick line").attr("x2", -graphWidth);
-        svgTimeline.selectAll(".tick text").attr("x", -2).style("text-anchor", "start");
+        svgTimeline.selectAll(".tick text").attr("x", 54).style("text-anchor", "start");
 
         // Inverse scaling: zoom in (larger transform.k) makes the circles smaller
         const inverseScaleFactor = 1 / transform.k; // Inverse zoom scale for circles and text
